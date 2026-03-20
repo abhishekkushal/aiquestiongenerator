@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vector Search Test</title>
+</head>
+
+<body>
+
+<h2>Search Syllabus Content</h2>
+
+<input type="text" id="topic" placeholder="Enter topic (example: acids)">
+<button onclick="search()">Search</button>
+
+<h3>Results</h3>
+
+<ul id="results"></ul>
+
+<script>
+
+function search() {
+
+    const topic = document.getElementById("topic").value;
+
+    fetch("http://localhost:8080/search?topic=" + encodeURIComponent(topic))
+    .then(response => response.json())
+    .then(data => {
+
+        const results = document.getElementById("results");
+        results.innerHTML = "";
+
+        data.forEach(chunk => {
+
+            const li = document.createElement("li");
+            li.textContent = chunk;
+
+            results.appendChild(li);
+        });
+
+    })
+    .catch(error => console.error("Error:", error));
+
+}
+
+</script>
+
+</body>
+</html>

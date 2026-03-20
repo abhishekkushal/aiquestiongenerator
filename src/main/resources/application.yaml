@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: aiquestions
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ai_exam
+    username: postgres
+    password: postgres
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
+
+ollama:
+  embedding:
+    url: http://localhost:11434/api/embeddings
+  generate:
+    url: http://localhost:11434/api/generate
