@@ -17,8 +17,13 @@ public class SearchController {
     private VectorSearchService searchService;
 
     @GetMapping("/search")
-    public List<String> search(@RequestParam String topic) {
+    public List<String> search(
+            @RequestParam String topic,
+            @RequestParam(required = false) String domain,
+            @RequestParam(required = false) String subject,
+            @RequestParam(required = false) String contentTopic,
+            @RequestParam(required = false) String roleOrExam) {
 
-        return searchService.search(topic);
+        return searchService.search(topic, domain, subject, contentTopic, roleOrExam);
     }
 }

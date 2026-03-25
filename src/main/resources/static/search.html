@@ -9,6 +9,10 @@
 <h2>Search Syllabus Content</h2>
 
 <input type="text" id="topic" placeholder="Enter topic (example: acids)">
+<input type="text" id="domain" placeholder="Domain">
+<input type="text" id="subject" placeholder="Subject">
+<input type="text" id="contentTopic" placeholder="Content topic">
+<input type="text" id="roleOrExam" placeholder="Role or exam">
 <button onclick="search()">Search</button>
 
 <h3>Results</h3>
@@ -20,8 +24,15 @@
 function search() {
 
     const topic = document.getElementById("topic").value;
+    const params = new URLSearchParams({
+        topic,
+        domain: document.getElementById("domain").value,
+        subject: document.getElementById("subject").value,
+        contentTopic: document.getElementById("contentTopic").value,
+        roleOrExam: document.getElementById("roleOrExam").value
+    });
 
-    fetch("http://localhost:8080/search?topic=" + encodeURIComponent(topic))
+    fetch("http://localhost:8080/search?" + params.toString())
     .then(response => response.json())
     .then(data => {
 

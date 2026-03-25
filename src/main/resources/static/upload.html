@@ -2,10 +2,22 @@
 <html>
 <head>
     <title>Upload Syllabus PDF</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        button { padding: 8px 18px; }
+    </style>
 </head>
 <body>
 
 <h2>Upload PDF</h2>
+
+<div style="margin-bottom: 16px;">
+    <a href="/generate.html">Open Generator</a>
+    <a href="/question-bank.html" style="margin-left: 12px;">Open Question Bank</a>
+    <form action="/logout" method="post" style="display:inline; margin-left: 12px;">
+        <button type="submit">Logout</button>
+    </form>
+</div>
 
 <form id="uploadForm">
     <input type="file" id="fileInput" name="file" />
@@ -20,9 +32,8 @@ document.getElementById("uploadForm").addEventListener("submit", function(e) {
 
     e.preventDefault();
 
-    const fileInput = document.getElementById("fileInput");
     const formData = new FormData();
-    formData.append("file", fileInput.files[0]);
+    formData.append("file", document.getElementById("fileInput").files[0]);
 
     fetch("http://localhost:8080/upload-pdf", {
         method: "POST",

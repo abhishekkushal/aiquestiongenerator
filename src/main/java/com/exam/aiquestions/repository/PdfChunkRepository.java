@@ -26,13 +26,14 @@ public interface PdfChunkRepository extends JpaRepository<PdfChunk, Long> {
             @Param("chunk") String chunkText,
             @Param("embedding") String embedding
     );
-    
+
     @Query(value = """
             SELECT *
             FROM pdf_chunks
             ORDER BY embedding <-> CAST(:queryVector AS vector)
             LIMIT :limit
             """, nativeQuery = true)
-        List<PdfChunk> searchSimilarChunks(String queryVector, int limit);
-
+    List<PdfChunk> searchSimilarChunks(
+            @Param("queryVector") String queryVector,
+            @Param("limit") int limit);
 }

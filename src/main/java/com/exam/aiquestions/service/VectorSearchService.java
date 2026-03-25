@@ -18,15 +18,11 @@ public class VectorSearchService {
     @Autowired
     private EmbeddingService embeddingService;
 
-    public List<String> search(String topic) {
+    public List<String> search(String query) {
 
+        PGvector queryEmbedding = embeddingService.generateEmbedding(query);
 
-        PGvector queryEmbedding = embeddingService.generateEmbedding(topic);
-
-        String vectorString = queryEmbedding.toString();
-
-        List<PdfChunk> results =
-                repository.searchSimilarChunks(vectorString, 5);
+        List<PdfChunk> results = repository.searchSimilarChunks(queryEmbedding.toString(), 5);
 
         return results.stream()
                 .map(PdfChunk::getChunkText)

@@ -3,7 +3,7 @@ spring:
     name: aiquestions
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/ai_exam
+    url: jdbc:postgresql://localhost:5433/ai_exams
     username: postgres
     password: postgres
 

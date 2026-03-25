@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f4f7fb, #dde7f6);
+        }
+
+        .login-card {
+            width: 360px;
+            max-width: calc(100% - 32px);
+            background: #fff;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 18px 40px rgba(35, 56, 88, 0.15);
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        p {
+            color: #4b5563;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px 12px;
+            border: 0;
+            border-radius: 8px;
+            background: #1d4ed8;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .message {
+            min-height: 20px;
+            margin-bottom: 14px;
+            font-size: 14px;
+        }
+
+        .error {
+            color: #b91c1c;
+        }
+
+        .success {
+            color: #166534;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h2>Application Login</h2>
+        <p>Sign in to access upload and question generation pages.</p>
+        <div id="message" class="message"></div>
+
+        <form method="post" action="/login">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" autocomplete="username" required>
+
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required>
+
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <script>
+    const params = new URLSearchParams(window.location.search);
+    const message = document.getElementById("message");
+
+    if (params.get("error") === "true") {
+        message.className = "message error";
+        message.textContent = "Invalid username or password.";
+    } else if (params.get("logout") === "true") {
+        message.className = "message success";
+        message.textContent = "You have been logged out.";
+    }
+    </script>
+</body>
+</html>

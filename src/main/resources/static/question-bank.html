@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Question Bank</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.5; }
+        input, select, button { padding: 8px; margin: 6px 6px 6px 0; }
+        .question-card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; background: #eef3ff; color: #1d3d8f; font-size: 12px; font-weight: bold; margin-right: 8px; }
+        .actions button { margin-right: 8px; }
+        .meta { margin-bottom: 10px; }
+        .answer-block { margin: 12px 0; }
+        pre { background: #f7f7f7; padding: 10px; border-radius: 6px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+
+<h2>Question Bank</h2>
+
+<div style="margin-bottom: 16px;">
+    <a href="/generate.html">Open Generator</a>
+    <a href="/upload.html" style="margin-left: 12px;">Open Upload Page</a>
+    <form action="/logout" method="post" style="display:inline; margin-left: 12px;">
+        <button type="submit">Logout</button>
+    </form>
+</div>
+
+<div>
+    <select id="questionType">
+        <option value="">All types</option>
+        <option value="MCQ">MCQ</option>
+        <option value="TRUE_FALSE">TRUE_FALSE</option>
+        <option value="FILL_BLANK">FILL_BLANK</option>
+        <option value="NUMERIC_RANGE">NUMERIC_RANGE</option>
+        <option value="SHORT_ANSWER">SHORT_ANSWER</option>
+    </select>
+    <select id="reviewStatus">
+        <option value="">All statuses</option>
+        <option value="DRAFT">DRAFT</option>
+        <option value="REVIEWED">REVIEWED</option>
+        <option value="APPROVED">APPROVED</option>
+        <option value="REJECTED">REJECTED</option>
+    </select>
+    <input type="text" id="topic" placeholder="Topic">
+    <button onclick="loadQuestions()">Load Questions</button>
+</div>
+
+<div id="result"></div>
+
+<script>
+function loadQuestions() {
+    const params = new URLSearchParams({
+        questionType: document.getElementById("questionType").value,
+        reviewStatus: document.getElementById("reviewStatus").value,
+        topic: document.getElementById("topic").value
+    });
+
+    fetch("http://localhost:8080/questions?" + params.toString())
+        .then(response => response.json())
+        .then(renderQuestions);
+}
+
+function renderQuestions(questions) {
+    const result = document.getElementById("result");
+    result.innerHTML = "";
+
+    questions.forEach(question => {
+        const card = document.createElement("div");
+        card.className = "question-card";
+        card.innerHTML = `
+            <div>
+                <span class="badge">${escapeHtml(question.questionType)}</span>
+                <span class="badge">${escapeHtml(question.complexity)}</span>
+                <span class="badge">${escapeHtml(question.reviewStatus)}</span>
+            </div>
+            <div><strong>${escapeHtml(question.topic)}</strong></div>
+            <div>${escapeHtml(question.questionText)}</div>
+            <div class="answer-block">${renderAnswerData(question.answerData || {})}</div>
+            <div><strong>Explanation:</strong> ${escapeHtml(question.explanation || "")}</div>
+            <div class="actions">
+                <button onclick="reviewQuestion(${question.id}, 'REVIEWED')">Mark Reviewed</button>
+                <button onclick="reviewQuestion(${question.id}, 'APPROVED')">Approve</button>
+                <button onclick="reviewQuestion(${question.id}, 'REJECTED')">Reject</button>
+            </div>
+        `;
+        result.appendChild(card);
+    });
+}
+
+function renderAnswerData(answerData) {
+    if (answerData.options && answerData.correctOption) {
+        return `
+            <div>A. ${escapeHtml(answerData.options[0] || "")}</div>
+            <div>B. ${escapeHtml(answerData.options[1] || "")}</div>
+            ${answerData.options[2] !== undefined ? `<div>C. ${escapeHtml(answerData.options[2] || "")}</div>` : ""}
+            ${answerData.options[3] !== undefined ? `<div>D. ${escapeHtml(answerData.options[3] || "")}</div>` : ""}
+            <div><strong>Correct Answer:</strong> ${escapeHtml(answerData.correctOption || "")}</div>
+        `;
+    }
+
+    if (answerData.acceptedAnswers) {
+        return `<div><strong>Accepted Answers:</strong> ${escapeHtml(answerData.acceptedAnswers.join(", "))}</div>`;
+    }
+
+    if (answerData.booleanAnswer !== undefined) {
+        return `<div><strong>Correct Answer:</strong> ${answerData.booleanAnswer ? "True" : "False"}</div>`;
+    }
+
+    if (answerData.minValue !== undefined && answerData.maxValue !== undefined) {
+        return `<div><strong>Accepted Range:</strong> ${escapeHtml(String(answerData.minValue))} to ${escapeHtml(String(answerData.maxValue))} ${escapeHtml(answerData.unit || "")} ${answerData.tolerance !== undefined && answerData.tolerance !== null ? `(tolerance: ${escapeHtml(String(answerData.tolerance))})` : ""}</div>`;
+    }
+
+    if (answerData.modelAnswer || answerData.rubricKeywords) {
+        return `
+            <div><strong>Model Answer:</strong> ${escapeHtml(answerData.modelAnswer || "")}</div>
+            <div><strong>Keywords:</strong> ${escapeHtml((answerData.rubricKeywords || []).join(", "))}</div>
+        `;
+    }
+
+    return `<pre>${escapeHtml(JSON.stringify(answerData, null, 2))}</pre>`;
+}
+
+function reviewQuestion(id, reviewStatus) {
+    const reviewedBy = prompt("Reviewer name", "Teacher") || "Teacher";
+    fetch(`http://localhost:8080/questions/${id}/review?reviewStatus=${reviewStatus}&reviewedBy=${encodeURIComponent(reviewedBy)}`, {
+        method: "POST"
+    }).then(() => loadQuestions());
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll("\"", "&quot;")
+        .replaceAll("'", "&#39;");
+}
+
+loadQuestions();
+</script>
+
+</body>
+</html>
