@@ -18,6 +18,18 @@
             padding:8px 20px;
             font-size:16px;
         }
+
+        select{
+            padding:8px;
+            font-size:16px;
+            min-width:300px;
+        }
+
+        label{
+            display:block;
+            margin-bottom:8px;
+            font-weight:bold;
+        }
     </style>
 
 </head>
@@ -26,7 +38,10 @@
 
 <h2>AI Question Generator</h2>
 
-<input type="text" id="topic" placeholder="Enter topic (example: acids)" size="40">
+<label for="topic">Select Topic:</label>
+<select id="topic">
+    <option value="">-- Select a topic --</option>
+</select>
 
 <button onclick="generate()">Generate MCQ</button>
 
@@ -36,9 +51,32 @@
 
 <script>
 
+function loadTopics() {
+    fetch("http://localhost:8080/get-topics")
+    .then(response => response.json())
+    .then(topics => {
+        const topicSelect = document.getElementById("topic");
+
+        topics.forEach(topic => {
+            const option = document.createElement("option");
+            option.value = topic.name;
+            option.textContent = topic.name;
+            topicSelect.appendChild(option);
+        });
+    })
+    .catch(error => {
+        console.error("Error loading topics:", error);
+    });
+}
+
 function generate(){
 
     const topic = document.getElementById("topic").value;
+
+    if (!topic) {
+        document.getElementById("result").value = "Please select a topic";
+        return;
+    }
 
     document.getElementById("result").value="Generating questions...";
 
@@ -56,6 +94,9 @@ function generate(){
     });
 
 }
+
+// Load topics when page loads
+window.addEventListener('load', loadTopics);
 
 </script>
 

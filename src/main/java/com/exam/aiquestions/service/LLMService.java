@@ -65,4 +65,41 @@ Q2:
 
         return "Error generating questions";
     }
+
+    public String extractTopics(String content) {
+
+        try {
+
+            String prompt = """
+Extract the main topics and subtopics from the following content.
+Return them as a simple comma-separated list (e.g., "Topic1, Topic2, Topic3").
+Only return the list, no other text.
+
+Content:
+%s
+""".formatted(content);
+
+            RestTemplate restTemplate = new RestTemplate();
+
+            Map<String, Object> request = new HashMap<>();
+            request.put("model", "llama3");
+            request.put("prompt", prompt);
+            request.put("stream", false);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
+
+            ResponseEntity<Map> response =
+                    restTemplate.postForEntity(OLLAMA_URL, entity, Map.class);
+
+            return (String) response.getBody().get("response");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "";
+    }
 }
